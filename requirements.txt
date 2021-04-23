@@ -1,0 +1,7 @@
+Flask
+Flask_SocketIO
+psycopg2
+Flask-SQLAlchemy
+python-dotenv
+Flask-Cors
+requests
