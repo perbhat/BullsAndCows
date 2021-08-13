@@ -1,25 +1,53 @@
-import logo from './logo.svg';
+import React, { useState, useEffect } from "react";
+import io from 'socket.io-client';
 import './App.css';
 
-function App() {
+let socket = io.connect();
+
+function App(){
+  const [messages, setMessages] = useState(["Hello And Welcome"]);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    getMessages();
+  }, [messages.length]);
+
+  const getMessages = () => {
+    socket.on("message", msg => {
+      //   let allMessages = messages;
+      //   allMessages.push(msg);
+      //   setMessages(allMessages);
+      setMessages([...messages, msg]);
+    });
+  };
+
+  // On Change
+  const onChange = e => {
+    setMessage(e.target.value);
+  };
+
+  // On Click
+  const onClick = () => {
+    if (message !== "") {
+      socket.emit("message", message);
+      setMessage("");
+    } else {
+      alert("Please Add A Message");
+    }
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <div class='wrapper'>
+        {messages.length > 0 &&
+          messages.map(msg => (
+            <div>
+              <p>{msg}</p>
+            </div>
+          ))}
+        <input value={message} name="message" onChange={e => onChange(e)} />
+        <button onClick={() => onClick()}>Send Message</button>
+      </div>
   );
-}
+};
 
 export default App;
