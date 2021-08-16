@@ -10,8 +10,8 @@ function App(){
   const [userName, updateName] = useState('') //Store's player's username
   
   const [userMap, updateUsers] = useState({
-    playerX: '',
-    playerO: '',
+    player1: '',
+    player2: '',
     spectators: []
   });
   
@@ -26,12 +26,12 @@ function App(){
     if(inputUser.current.value != ''){
       var copy = {...userMap}
       const user = inputUser.current.value
-      if(copy.playerX == ''){
-        copy.playerX = user
+      if(copy.player1 == ''){
+        copy.player1 = user
         updateUser(oldUser => 'X')
       }
-      else if(copy.playerO == ''){
-        copy.playerO = user
+      else if(copy.player2 == ''){
+        copy.player2 = user
          updateUser(oldUser => 'O')
       }
       else{
@@ -75,12 +75,12 @@ function App(){
     
   }
   
-  else if(userMap.playerX == '' || userMap.playerO == ''){
+  else if(userMap.player1 == '' || userMap.player2 == ''){
     return(
       <div class='wrapper'>
         <div>
-          <h3>PlayerX: {userMap.playerX}</h3>
-          <h3>PlayerO: {userMap.playerO}</h3>
+          <h3>player1: {userMap.player1}</h3>
+          <h3>player2: {userMap.player2}</h3>
           <h3>Spectators:</h3>
           {userMap.spectators.map((item) => <h3>{item}, </h3>)}
         </div>
@@ -95,15 +95,15 @@ function App(){
 
       <div class='wrapper-small'>
         <div>
-          <h3>PlayerX: {userMap.playerX}</h3>
-          <h3>PlayerO: {userMap.playerO}</h3>
+          <h3>player1: {userMap.player1}</h3>
+          <h3>player2: {userMap.player2}</h3>
           <div class='spec'>
           <h2>Spectators: </h2>
           
           {userMap.spectators.map((item, index) => (<h2>{ (index ? ', ': '') + item }</h2>))}
           </div>
 
-          {/* <Board playerX={userMap.playerX} playerO={userMap.playerO} player={thisUser} /> */}
+          {/* <Board player1={userMap.player1} player2={userMap.player2} player={thisUser} /> */}
           
           
         </div>
