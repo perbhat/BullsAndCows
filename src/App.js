@@ -1,53 +1,125 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import io from 'socket.io-client';
 import './App.css';
 
 let socket = io.connect();
 
 function App(){
-  const [messages, setMessages] = useState(["Hello And Welcome"]);
-  const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    getMessages();
-  }, [messages.length]);
+  const [thisUser, updateUser] = useState('') //Tells whether player is X or O
+  const [userName, updateName] = useState('') //Store's player's username
+  
+  const [userMap, updateUsers] = useState({
+    playerX: '',
+    playerO: '',
+    spectators: []
+  });
+  
 
-  const getMessages = () => {
-    socket.on("message", msg => {
-      //   let allMessages = messages;
-      //   allMessages.push(msg);
-      //   setMessages(allMessages);
-      setMessages([...messages, msg]);
-    });
-  };
 
-  // On Change
-  const onChange = e => {
-    setMessage(e.target.value);
-  };
 
-  // On Click
-  const onClick = () => {
-    if (message !== "") {
-      socket.emit("message", message);
-      setMessage("");
-    } else {
-      alert("Please Add A Message");
+  const inputUser = useRef(''); //Hook to take value from the textbox
+  
+  
+  
+  function onButtonClick(){ //Allows users to log into Application
+    if(inputUser.current.value != ''){
+      var copy = {...userMap}
+      const user = inputUser.current.value
+      if(copy.playerX == ''){
+        copy.playerX = user
+        updateUser(oldUser => 'X')
+      }
+      else if(copy.playerO == ''){
+        copy.playerO = user
+         updateUser(oldUser => 'O')
+      }
+      else{
+        let specs = [...copy.spectators, user]
+        copy.spectators = specs
+        updateUser(oldUser => 's')
+      }
+      updateUsers(copy);
+      updateName(user)
+      
+      
+      
+      socket.emit('login', {users: copy});
+      console.log(copy);
+      console.log("emitted");
     }
+    
   };
-
-  return (
-      <div class='wrapper'>
-        {messages.length > 0 &&
-          messages.map(msg => (
-            <div>
-              <p>{msg}</p>
-            </div>
-          ))}
-        <input value={message} name="message" onChange={e => onChange(e)} />
-        <button onClick={() => onClick()}>Send Message</button>
+  
+  useEffect(() => {
+    socket.on('login', (data) => {
+        console.log('login registered')
+        updateUsers(data.users);
+        console.log(data.users.spectators)
+        });
+     }, []);
+     
+     
+  
+  
+  if(thisUser == ''){
+    return(
+      <div class='wrapper-input'>
+        <div>
+        <input type='text' ref={inputUser} placeholder='username' required/>
+        <div style={{paddingTop: 10}}><button onClick={onButtonClick}><h3>Log In</h3></button></div>
+        </div>
       </div>
-  );
+
+      )
+    
+  }
+  
+  else if(userMap.playerX == '' || userMap.playerO == ''){
+    return(
+      <div class='wrapper'>
+        <div>
+          <h3>PlayerX: {userMap.playerX}</h3>
+          <h3>PlayerO: {userMap.playerO}</h3>
+          <h3>Spectators:</h3>
+          {userMap.spectators.map((item) => <h3>{item}, </h3>)}
+        </div>
+      </div>
+      ) 
+  }
+
+
+  else{
+    
+    return (
+
+      <div class='wrapper-small'>
+        <div>
+          <h3>PlayerX: {userMap.playerX}</h3>
+          <h3>PlayerO: {userMap.playerO}</h3>
+          <div class='spec'>
+          <h2>Spectators: </h2>
+          
+          {userMap.spectators.map((item, index) => (<h2>{ (index ? ', ': '') + item }</h2>))}
+          </div>
+
+          {/* <Board playerX={userMap.playerX} playerO={userMap.playerO} player={thisUser} /> */}
+          
+          
+        </div>
+      </div>
+
+    );
+
+
+
+}
+
+
+
+
+  
+  
 };
 
 export default App;
