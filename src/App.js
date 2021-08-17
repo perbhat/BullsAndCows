@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import io from 'socket.io-client';
 import './App.css';
+import { Board } from './Board.js';
 
 let socket = io.connect();
 
@@ -28,11 +29,11 @@ function App(){
       const user = inputUser.current.value
       if(copy.player1 == ''){
         copy.player1 = user
-        updateUser(oldUser => 'X')
+        updateUser(oldUser => '1')
       }
       else if(copy.player2 == ''){
         copy.player2 = user
-         updateUser(oldUser => 'O')
+         updateUser(oldUser => '2')
       }
       else{
         let specs = [...copy.spectators, user]
@@ -103,7 +104,7 @@ function App(){
           {userMap.spectators.map((item, index) => (<h2>{ (index ? ', ': '') + item }</h2>))}
           </div>
 
-          {/* <Board player1={userMap.player1} player2={userMap.player2} player={thisUser} /> */}
+          <Board player1={userMap.player1} player2={userMap.player2} player={thisUser} />
           
           
         </div>

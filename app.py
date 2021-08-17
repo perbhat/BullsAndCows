@@ -57,6 +57,18 @@ def on_reset(data):
     print('reset')
     socketio.emit('reset', data, broadcast=True, include_self=False)
 
+@socketio.on('target')
+def on_target(data):
+    print("set target")
+    print(str(data))
+    socketio.emit('target', data, broadcast=True, include_self=False)
+
+@socketio.on('guess')
+def on_guess(data):
+    print("player has guessed")
+    print(str(data))
+    socketio.emit('guess', data, broadcast=True, include_delf=False)
+
 
 # Note that we don't call app.run anymore. We call socketio.run with app arg
 socketio.run(
