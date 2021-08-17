@@ -8,6 +8,7 @@ export function Board(props) {
     
     const [targetWord, setTarget] = useState('')
     const [guesses, changeState] = useState([]);
+    const [winState, chickenDinner] = useState([false])
     
     const currTurn = props.player == '1' ? true : false 
     const[canSet, changeTurn] = useState(currTurn)
@@ -31,8 +32,8 @@ export function Board(props) {
           
           socket.emit('target', {target: curr});
         //   changeTurn(prev => !prev)
-          console.log(targetWord);
-          console.log(canSet)
+        //   console.log(targetWord);
+        //   console.log(canSet)
         }
         
       };
@@ -40,10 +41,10 @@ export function Board(props) {
         useEffect(() => {
         socket.on('target', (data) => {
             const wordTarget = data.target
-            console.log(wordTarget)
+            // console.log(wordTarget)
             setTarget(prev => wordTarget)
             // changeTurn(prev => !prev)
-            console.log(canSet)
+            // console.log(canSet)
             });
             }, []);
  
@@ -54,8 +55,12 @@ export function Board(props) {
     function onSubmitGuess() {
         const curr = guess.current.value
         if (curr != '' & guesses.length < 10){
+            const win = checkWin(curr)
+            chickenDinner(win)
+            console.log(winState)
             const tempGuess = [...guesses, curr]
             changeState(prev => tempGuess)
+            socket.emit('updateWin', {state: win})
             socket.emit('guess', {board: tempGuess})
         }
         
@@ -68,9 +73,51 @@ export function Board(props) {
             });
             }, []);
 
+    
+    function checkWin(guess){
+        if (targetWord != '' & guess ==  targetWord){
+            return true
+        }
+        else{
+            return false
+        }
+    }
+
+    useEffect(() => {
+        socket.on('updateWin', (data) => {
+            chickenDinner(data.state)
+            console.log("updated win")
+            });
+            }, []);
 
 
 
+    if (winState == true & canSet == true & guesses.length < 10) {
+        return (
+            <h1>You Lost!</h1>
+        )
+    }
+
+    else if (winState == true & canSet == false & guesses.length < 10) {
+        return (
+            <h1>You Won!</h1>
+        )
+    }
+
+    else if (winState == false & canSet == false & guesses.length >= 10) {
+        return (
+            <h1>You Lost!</h1>
+        )
+    }
+
+    else if (winState == false & canSet == true & guesses.length >= 10) {
+        return (
+            <h1>You Won!</h1>
+        )
+    }
+
+    
+    
 
     if(canSet){
         return (
@@ -95,6 +142,8 @@ export function Board(props) {
             </>
         )
     }
+
+    
 
 
 }

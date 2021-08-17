@@ -70,6 +70,14 @@ def on_guess(data):
     socketio.emit('guess', data, broadcast=True, include_delf=False)
 
 
+@socketio.on('updateWin')
+def on_guess(data):
+    print("win check!")
+    print(str(data))
+    socketio.emit('updateWin', data, broadcast=True, include_delf=False)
+
+
+
 # Note that we don't call app.run anymore. We call socketio.run with app arg
 socketio.run(
     app,
