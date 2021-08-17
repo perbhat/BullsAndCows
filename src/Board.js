@@ -7,7 +7,7 @@ const socket = io();
 export function Board(props) {
     
     const [targetWord, setTarget] = useState('')
-    const [guesses, changeState] = useState(Array(10).fill(null));
+    const [guesses, changeState] = useState([]);
     
     const currTurn = props.player == '1' ? true : false 
     const[canSet, changeTurn] = useState(currTurn)
@@ -30,7 +30,7 @@ export function Board(props) {
           setTarget(prev => curr) // Add checking to make sure target is valid 5 letters
           
           socket.emit('target', {target: curr});
-          changeTurn(prev => !prev)
+        //   changeTurn(prev => !prev)
           console.log(targetWord);
           console.log(canSet)
         }
@@ -42,7 +42,7 @@ export function Board(props) {
             const wordTarget = data.target
             console.log(wordTarget)
             setTarget(prev => wordTarget)
-            changeTurn(prev => !prev)
+            // changeTurn(prev => !prev)
             console.log(canSet)
             });
             }, []);
@@ -50,25 +50,20 @@ export function Board(props) {
     
 
     const guess = useRef('');
-    const currIndex = 0
 
     function onSubmitGuess() {
         const curr = guess.current.value
-        if (curr != ''){
-            tempGuess = [...guesses]
-            tempGuess[currIndex] = curr
-            changeState[prev => tempGuess]
-            currIndex ++
+        if (curr != '' & guesses.length < 10){
+            const tempGuess = [...guesses, curr]
+            changeState(prev => tempGuess)
+            socket.emit('guess', {board: tempGuess})
         }
         
-        socket.emit('guess', {guess: guesses})
     }
 
     useEffect(() => {
         socket.on('guess', (data) => {
-            const gameBoard = data.guesses
-            console.log(gameBoard)
-            changeState(prev => gameBoard)
+            changeState(prev => data.board)
             console.log("updated guesses")
             });
             }, []);
@@ -84,7 +79,7 @@ export function Board(props) {
             
             <input type='text' ref={targetInput} placeholder='Enter target word' required/>
             <div style={{paddingTop: 10}}><button onClick={onButtonClick}><h3>Set Target</h3></button></div>
-            {guesses.map((item, index) => (<h2>{ (index ? ', ': '') + item }</h2>))}
+            {guesses.map((item) => (<h2>{ item }</h2>))}
             </>
         );
 
@@ -95,8 +90,8 @@ export function Board(props) {
             <>
             <h3> { targetWord } </h3>
             <input type='text' ref={guess} placeholder='Enter guess' required/>
-            <div style={{paddingTop: 10}}><button onClick={onSubmitGuess}><h3>Set Target</h3></button></div>
-            {guesses.map((item, index) => (<h2>{ (index ? ', ': '') + item }</h2>))}
+            <div style={{paddingTop: 10}}><button onClick={onSubmitGuess}><h3>Enter a Guess</h3></button></div>
+            {guesses.map((item) => (<h2>{ item }</h2>))}
             </>
         )
     }
